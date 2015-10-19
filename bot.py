@@ -6,6 +6,12 @@ logging.basicConfig(level=logging.DEBUG)
 telebot.logger.setLevel(logging.DEBUG)
 logger = logging.getLogger('tbbot')
 
+help_msg = '''
+/tbsearch <keywords> - Search over taobao.com and return list of items.
+/tbprice <keywords> - Search over taobao.com and return price.
+/help - print this message.
+'''
+
 
 def readfile(filename):
     with open(filename, 'r') as f:
@@ -15,12 +21,17 @@ bot = telebot.TeleBot(readfile('token.txt'))
 
 
 def retrieve_arg(text):
-    return text.split(' ', 1).pop()
+    try:
+        return text.split(' ', 1)[1]
+    except IndexError:
+        return None
 
 
 @bot.message_handler(commands=['tbsearch'])
 def search_handler(message):
     arg = retrieve_arg(message.text)
+    if arg is None:
+        return help_handler(message)
     searcher = TB_Searcher(arg)
     try:
         logger.debug('Key word to search: [{}]'.format(arg))
@@ -38,6 +49,8 @@ def search_handler(message):
 @bot.message_handler(commands=['tbprice'])
 def price_handler(message):
     arg = retrieve_arg(message.text)
+    if arg is None:
+        return help_handler(message)
     searcher = TB_Searcher(arg)
     try:
         logger.debug('Key word to search: [{}]'.format(arg))
@@ -49,6 +62,12 @@ def price_handler(message):
     except:
         logger.exception('Fail to print prices')
         bot.reply_to(message, 'Ooops, 臣妾做不到啊')
+
+
+@bot.message_handler(commands=['help'])
+def help_handler(message):
+    global help_msg
+    bot.reply_to(message, help_msg)
 
 
 if __name__ == '__main__':
