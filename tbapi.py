@@ -1,7 +1,7 @@
 import requests
 
 
-class TB_SEARCHER:
+class TB_Searcher:
     def __init__(self, merchandise):
         self.url = "http://s.m.taobao.com/search"
         self.params = {
@@ -58,5 +58,5 @@ class TB_SEARCHER:
 
 if __name__ == '__main__':
     import pprint
-    tb_api = TB_SEARCHER('dive into python')
+    tb_api = TB_Searcher('dive into python')
     pprint.pprint(tb_api.list_items())
