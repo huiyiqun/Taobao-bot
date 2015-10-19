@@ -1,4 +1,5 @@
 import requests
+import re
 
 
 class TB_Searcher:
@@ -38,6 +39,9 @@ class TB_Searcher:
 
         Return:
             (`min_price`, `max_price`, `mean_price`)
+
+        Unit:
+            RMB
         """
         prices = [float(item['price']) for item in self.json['listItem']]
         return tuple(
@@ -55,8 +59,39 @@ class TB_Searcher:
             for item in self.json['listItem'][:limit]
         ]
 
+    def unit_price_tuple(self):
+        '''
+        Get information about unit price.
+
+        Return:
+            (`min_price`, `max_price`, `mean_price`)
+
+        Unit:
+            RMB/500g
+        '''
+        prices = []
+        for item in self.json['listItem']:
+            p = re.search('(\d+)[g克]', item['title'], re.IGNORECASE)
+            if p is not None:
+                prices.append(float(item['price'])*500/float(p.group(1)))
+                continue
+
+            p = re.search('(\d+)(kg|千克)', item['title'], re.IGNORECASE)
+            if p is not None:
+                prices.append(float(item['price'])*0.5/float(p.group(1)))
+                continue
+
+            p = re.search('(\d+)斤', item['title'], re.IGNORECASE)
+            if p is not None:
+                prices.append(float(item['price'])/float(p.group(1)))
+                continue
+            print('No reasonable data in title: {}'.format(item['title']))
+        return tuple(
+            func(prices) for func in (min, max, lambda l: sum(l) / len(l)))
+        pass
+
 
 if __name__ == '__main__':
     import pprint
-    tb_api = TB_Searcher('dive into python')
-    pprint.pprint(tb_api.list_items())
+    tb_api = TB_Searcher('tuna')
+    pprint.pprint(tb_api.unit_price_tuple())
