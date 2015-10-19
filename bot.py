@@ -20,8 +20,10 @@ def retrieve_arg(text):
 
 @bot.message_handler(commands=['tbsearch'])
 def search_handler(message):
-    searcher = TB_Searcher(retrieve_arg(message.text))
+    arg = retrieve_arg(message.text)
+    searcher = TB_Searcher(arg)
     try:
+        logger.debug('Key word to search: [{}]'.format(arg))
         bot.reply_to(
             message,
             '\n'.join(
@@ -35,8 +37,10 @@ def search_handler(message):
 
 @bot.message_handler(commands=['tbprice'])
 def price_handler(message):
-    searcher = TB_Searcher(retrieve_arg(message.text))
+    arg = retrieve_arg(message.text)
+    searcher = TB_Searcher(arg)
     try:
+        logger.debug('Key word to search: [{}]'.format(arg))
         bot.reply_to(
             message,
             '最低价：{:.2f}RMB\n最高价：{:.2f}RMB\n平均价：{:.2f}RMB'
