@@ -1,5 +1,8 @@
 import requests
 import re
+import logging
+
+logger = logging.getLogger('tbapi')
 
 
 class TB_Searcher:
@@ -85,7 +88,8 @@ class TB_Searcher:
             if p is not None:
                 prices.append(float(item['price'])/float(p.group(1)))
                 continue
-            print('No reasonable data in title: {}'.format(item['title']))
+            logger.debug(
+                'No reasonable data in title: {}'.format(item['title']))
         return tuple(
             func(prices) for func in (min, max, lambda l: sum(l) / len(l)))
         pass
