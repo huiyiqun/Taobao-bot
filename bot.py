@@ -64,6 +64,24 @@ def price_handler(message):
         bot.reply_to(message, 'Ooops, 臣妾做不到啊')
 
 
+@bot.message_handler(commands=['tbuprice'])
+def unit_price_handler(message):
+    arg = retrieve_arg(message.text)
+    if arg is None:
+        return help_handler(message)
+    searcher = TB_Searcher(arg)
+    try:
+        logger.debug('Key word to search: [{}]'.format(arg))
+        bot.reply_to(
+            message,
+            '最低价：{:.2f}RMB/斤\n最高价：{:.2f}RMB/斤\n平均价：{:.2f}RMB/斤'
+            .format(*searcher.unit_price_tuple())
+        )
+    except:
+        logger.exception('Fail to print unit prices')
+        bot.reply_to(message, 'Ooops, 臣妾做不到啊')
+
+
 @bot.message_handler(commands=['help'])
 def help_handler(message):
     global help_msg
