@@ -1,8 +1,17 @@
 import requests
 import re
 import logging
+from urllib.parse import urlparse, parse_qsl, urlencode
 
 logger = logging.getLogger('tbapi')
+
+
+def nice_url(url):
+    KEEPED_QUERY = ['id', ]
+    url_tuple = urlparse(url)
+    qs = parse_qsl(url_tuple.query)
+    new_qs = urlencode(list(filter(lambda k_v: k_v[0] in KEEPED_QUERY, qs)))
+    return url_tuple._replace(scheme='http', query=new_qs).geturl()
 
 
 class TB_Searcher:
@@ -58,7 +67,7 @@ class TB_Searcher:
             (`title`, `url`)
         """
         return [
-            (item['name'], item['url'])
+            (item['name'], nice_url(item['url']))
             for item in self.json['listItem'][:limit]
         ]
 
