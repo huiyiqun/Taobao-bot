@@ -101,7 +101,6 @@ class TB_Searcher:
                 'No reasonable data in title: {}'.format(item['title']))
         return tuple(
             func(prices) for func in (min, max, lambda l: sum(l) / len(l)))
-        pass
 
 
 if __name__ == '__main__':
