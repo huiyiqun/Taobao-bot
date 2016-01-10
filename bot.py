@@ -57,7 +57,7 @@ def price_handler(message):
         logger.debug('Key word to search: [{}]'.format(arg))
         bot.reply_to(
             message,
-            'Min：￥{:.2f}/Max：￥{:.2f}/Avg：￥{:.2f}'
+            '最低：￥{:.2f}/最高：￥{:.2f}/平均：￥{:.2f}'
             .format(*searcher.price_tuple())
         )
     except:
@@ -75,12 +75,12 @@ def unit_price_handler(message):
         logger.debug('Key word to search: [{}]'.format(arg))
         bot.reply_to(
             message,
-            '（每单位商品）Min：￥{:.2f}/Max：￥{:.2f}/Avg：￥{:.2f}'
+            '（每斤）最低：￥{:.2f}/最高：￥{:.2f}/平均：￥{:.2f}'
             .format(*searcher.unit_price_tuple())
         )
     except:
         logger.exception('Fail to print unit prices')
-        bot.reply_to(message, 'Ooops, 臣妾做不到啊')
+        bot.reply_to(message, 'Ooops, 臣妾做不到啊（去掉u试试看）')
 
 
 @bot.message_handler(commands=['help'])
