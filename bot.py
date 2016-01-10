@@ -9,6 +9,7 @@ logger = logging.getLogger('tbbot')
 help_msg = '''
 /tbsearch <keywords> - Search over taobao.com and return list of items.
 /tbprice <keywords> - Search over taobao.com and return price.
+/tbuprice <keywords> - Search over taobao.com and return price of per unit.
 /help - print this message.
 '''
 
@@ -56,7 +57,7 @@ def price_handler(message):
         logger.debug('Key word to search: [{}]'.format(arg))
         bot.reply_to(
             message,
-            '最低价：{:.2f}RMB\n最高价：{:.2f}RMB\n平均价：{:.2f}RMB'
+            'Min：￥{:.2f}/Max：￥{:.2f}/Avg：￥{:.2f}'
             .format(*searcher.price_tuple())
         )
     except:
@@ -74,7 +75,7 @@ def unit_price_handler(message):
         logger.debug('Key word to search: [{}]'.format(arg))
         bot.reply_to(
             message,
-            '最低价：{:.2f}RMB/斤\n最高价：{:.2f}RMB/斤\n平均价：{:.2f}RMB/斤'
+            '（每单位商品）Min：￥{:.2f}/Max：￥{:.2f}/Avg：￥{:.2f}'
             .format(*searcher.unit_price_tuple())
         )
     except:
