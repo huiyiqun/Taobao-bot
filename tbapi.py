@@ -1,17 +1,24 @@
 import requests
 import re
 import logging
-from urllib.parse import urlparse, parse_qsl, urlencode
+from urllib.parse import urlsplit, parse_qs, urlunsplit
 
 logger = logging.getLogger('tbapi')
 
 
 def nice_url(url):
-    KEEPED_QUERY = ['id', ]
-    url_tuple = urlparse(url)
-    qs = parse_qsl(url_tuple.query)
-    new_qs = urlencode(list(filter(lambda k_v: k_v[0] in KEEPED_QUERY, qs)))
-    return url_tuple._replace(scheme='http', query=new_qs).geturl()
+    url_tuple = urlsplit(url)
+    if url_tuple.netloc == 'a.m.taobao.com':
+        item_id = url_tuple.path.split('.')[0].lstrip('/i')
+    else: # url_tuple.netloc == 'detail.m.tmall.com'
+        item_id = parse_qs(url_tuple.query)['id'][0]
+    return urlunsplit((
+        'https',
+        'item.taobao.com',
+        '/item.htm',
+        'id=' + item_id,
+        '',
+    ))
 
 
 class TB_Searcher:
