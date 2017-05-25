@@ -1,9 +1,8 @@
-import telebot
 import logging
 from tbapi import TB_Searcher
+from telegram.ext import Updater, CommandHandler
 
 logging.basicConfig(level=logging.DEBUG)
-telebot.logger.setLevel(logging.DEBUG)
 logger = logging.getLogger('tbbot')
 
 help_msg = '''
@@ -18,76 +17,66 @@ def readfile(filename):
     with open(filename, 'r') as f:
         return f.read().strip()
 
-bot = telebot.TeleBot(readfile('token.txt'))
-
-
-def retrieve_arg(text):
-    try:
-        return text.split(' ', 1)[1]
-    except IndexError:
-        return None
-
-
-@bot.message_handler(commands=['tbsearch'])
-def search_handler(message):
-    arg = retrieve_arg(message.text)
-    if arg is None:
-        return help_handler(message)
+def search_handler(bot, update, args):
+    arg = ' '.join(args)
+    if not arg:
+        return help_handler(bot, update)
     searcher = TB_Searcher(arg)
     try:
         logger.debug('Key word to search: [{}]'.format(arg))
-        bot.reply_to(
-            message,
+        update.message.reply_text(
             '\n'.join(
                 '{}: {}'.format(title, url)
-                for title, url in searcher.list_items())
-        )
+                for title, url in searcher.list_items()))
     except:
         logger.exception('Fail to list items')
-        bot.reply_to(message, 'Ooops, 臣妾做不到啊')
+        update.message.reply_text('Ooops, 臣妾做不到啊')
 
 
-@bot.message_handler(commands=['tbprice'])
-def price_handler(message):
-    arg = retrieve_arg(message.text)
-    if arg is None:
+def price_handler(bot, update, args):
+    arg = ' '.join(args)
+    if not arg:
         return help_handler(message)
     searcher = TB_Searcher(arg)
     try:
         logger.debug('Key word to search: [{}]'.format(arg))
-        bot.reply_to(
-            message,
+        update.message.reply_text(
             '最低：￥{:.2f}/最高：￥{:.2f}/平均：￥{:.2f}'
             .format(*searcher.price_tuple())
         )
     except:
         logger.exception('Fail to print prices')
-        bot.reply_to(message, 'Ooops, 臣妾做不到啊')
+        update.message.reply_text('Ooops, 臣妾做不到啊')
 
 
-@bot.message_handler(commands=['tbuprice'])
-def unit_price_handler(message):
-    arg = retrieve_arg(message.text)
-    if arg is None:
+def unit_price_handler(bot, update, args):
+    arg = ' '.join(args)
+    if not arg:
         return help_handler(message)
     searcher = TB_Searcher(arg)
     try:
         logger.debug('Key word to search: [{}]'.format(arg))
-        bot.reply_to(
-            message,
+        update.message.reply_text(
             '（每斤）最低：￥{:.2f}/最高：￥{:.2f}/平均：￥{:.2f}'
             .format(*searcher.unit_price_tuple())
         )
     except:
         logger.exception('Fail to print unit prices')
-        bot.reply_to(message, 'Ooops, 臣妾做不到啊（去掉u试试看）')
+        update.message.reply_text('Ooops, 臣妾做不到啊（去掉u试试看）')
 
 
-@bot.message_handler(commands=['help'])
-def help_handler(message):
-    global help_msg
-    bot.reply_to(message, help_msg)
+def help_handler(bot, update):
+    update.message.reply_text(help_msg)
+
+
+updater = Updater(readfile('token.txt'))
+
+updater.dispatcher.add_handler(CommandHandler('tbsearch', search_handler, pass_args=True))
+updater.dispatcher.add_handler(CommandHandler('tbprice', price_handler, pass_args=True))
+updater.dispatcher.add_handler(CommandHandler('tbuprice', unit_price_handler, pass_args=True))
+updater.dispatcher.add_handler(CommandHandler('help', help_handler))
 
 
 if __name__ == '__main__':
-    bot.polling(none_stop=True)
+    updater.start_polling()
+    updater.idle()
